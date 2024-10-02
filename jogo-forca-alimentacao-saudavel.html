@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Forca: Alimentação Saudável</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('https://via.placeholder.com/1920x1080.png?text=Fundo+Alimentação+Saudável');
+            background-size: cover;
+            background-position: center;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        #word {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        #hangman {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+        #keyboard {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 5px;
+        }
+        button {
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        #message {
+            font-size: 1.2em;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Jogo da Forca: Alimentação Saudável</h1>
+        <div id="hangman"></div>
+        <div id="word"></div>
+        <div id="keyboard"></div>
+        <div id="message"></div>
+        <button id="newGame" style="margin-top: 20px;">Novo Jogo</button>
+    </div>
+
+    <audio id="correctSound" src="https://cdn.freesound.org/previews/535/535840_6986062-lq.mp3"></audio>
+    <audio id="wrongSound" src="https://cdn.freesound.org/previews/528/528868_3160960-lq.mp3"></audio>
+
+    <script>
+        const words = ['ABACATE', 'BRÓCOLIS', 'CENOURA', 'ESPINAFRE', 'QUINOA', 'SALMÃO', 'IOGURTE', 'AVEIA', 'LINHAÇA', 'TOMATE', 'AMÊNDOA', 'BANANA', 'LARANJA', 'MORANGO', 'MELANCIA', 'AGRIÃO', 'BETERRABA', 'COUVE', 'ABOBRINHA', 'BERINJELA'];
+        const hangmanStages = ['O', 'O-', 'O-|', 'O-|-', 'O-|-<', 'O-|-<>'];
+        let word, guessedWord, wrongGuesses, gameOver;
+
+        const wordElement = document.getElementById('word');
+        const hangmanElement = document.getElementById('hangman');
+        const keyboardElement = document.getElementById('keyboard');
+        const messageElement = document.getElementById('message');
+        const newGameButton = document.getElementById('newGame');
+        const correctSound = document.getElementById('correctSound');
+        const wrongSound = document.getElementById('wrongSound');
+
+        function initGame() {
+            word = words[Math.floor(Math.random() * words.length)];
+            guessedWord = '_'.repeat(word.length);
+            wrongGuesses = 0;
+            gameOver = false;
+
+            updateDisplay();
+            createKeyboard();
+            messageElement.textContent = '';
+        }
+
+        function updateDisplay() {
+            wordElement.textContent = guessedWord.split('').join(' ');
+            hangmanElement.textContent = hangmanStages[wrongGuesses];
+        }
+
+        function createKeyboard() {
+            keyboardElement.innerHTML = '';
+            'ABCDEFGHIJKLMNOPQRSTUVWXYZÇÃÁÀÂÊÉÈÍÌÎÓÒÔÕÚÙÛ'.split('').forEach(letter => {
+                const button = document.createElement('button');
+                button.textContent = letter;
+                button.onclick = () => guessLetter(letter);
+                keyboardElement.appendChild(button);
+            });
+        }
+
+        function guessLetter(letter) {
+            if (gameOver) return;
+
+            if (word.includes(letter)) {
+                guessedWord = guessedWord.split('').map((char, index) => 
+                    word[index] === letter ? letter : char
+                ).join('');
+                correctSound.play();
+            } else {
+                wrongGuesses++;
+                wrongSound.play();
+            }
+
+            updateDisplay();
+            checkGameEnd();
+        }
+
+        function checkGameEnd() {
+            if (guessedWord === word) {
+                messageElement.textContent = 'Parabéns! Você venceu!';
+                gameOver = true;
+            } else if (wrongGuesses === hangmanStages.length - 1) {
+                messageElement.textContent = `Fim de jogo! A palavra era: ${word}`;
+                gameOver = true;
+            }
+        }
+
+        newGameButton.onclick = initGame;
+
+        initGame();
+    </script>
+</body>
+</html>
